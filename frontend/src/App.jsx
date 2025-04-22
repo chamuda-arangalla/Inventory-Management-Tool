@@ -5,7 +5,7 @@ import Header from "./components/header/Header";
 import Sidebar from "./components/sidebar/Sidebar";
 import Footer from "./components/footer/Footer";
 import User from "./pages/user/User";
-import Order from "./pages/order/Order";
+import OrderManagement from "./pages/order/OrderManagement/OrderManagement";
 import Product from "./pages/product/Product";
 import Supplier from "./pages/supplier/Supplier";
 import Signin from "./pages/signin/Signin";
@@ -21,7 +21,7 @@ function App() {
           <div className="page-content">
             <Routes>
               <Route path="/" element={<User />} />
-              <Route path="/orders" element={<Order />} />
+              <Route path="/orders" element={<OrderManagement />} />
               <Route path="/products" element={<Product />} />
               <Route path="/suppliers" element={<Supplier />} />
               <Route path="/signin" element={<Signin />} />
