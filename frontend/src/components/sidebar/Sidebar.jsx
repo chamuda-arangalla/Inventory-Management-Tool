@@ -12,7 +12,7 @@ const Sidebar = () => {
   const location = useLocation();
 
   const navItems = [
-    { id: "/users", label: "User Management", icon: UsersIcon },
+    { id: "/", label: "User Management", icon: UsersIcon },
     { id: "/orders", label: "Order Management", icon: ShoppingCartIcon },
     { id: "/products", label: "Product Management", icon: PackageIcon },
     { id: "/suppliers", label: "Supplier Management", icon: TruckIcon },

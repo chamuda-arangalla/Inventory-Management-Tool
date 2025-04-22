@@ -20,7 +20,7 @@ function App() {
           <Sidebar />
           <div className="page-content">
             <Routes>
-              <Route path="/users" element={<User />} />
+              <Route path="/" element={<User />} />
               <Route path="/orders" element={<Order />} />
               <Route path="/products" element={<Product />} />
               <Route path="/suppliers" element={<Supplier />} />
