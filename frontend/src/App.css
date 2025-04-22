@@ -1,0 +1,20 @@
+/* App.css */
+
+.app-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  .main-layout {
+    display: flex;
+    flex: 1;
+  }
+  
+  .page-content {
+    flex: 1;
+    padding: 1rem;
+    background-color: #f9fafb;
+    min-height: calc(100vh - 100px); /* Adjust if header/footer height differs */
+  }
+  
