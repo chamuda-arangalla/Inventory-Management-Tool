@@ -1,0 +1,73 @@
+const Order = require("../models/order");
+
+// CREATE Order
+const createOrder = async (req, res) => {
+  try {
+    const order = new Order(req.body);
+    const savedOrder = await order.save();
+    res.status(201).json(savedOrder);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// READ all Orders
+const getAllOrders = async (req, res) => {
+  try {
+    const orders = await Order.find().populate("products.productId");
+    res.status(200).json(orders);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// READ one Order by ID
+const getOrderById = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id).populate(
+      "products.productId"
+    );
+    if (!order) return res.status(404).json({ error: "Order not found" });
+    res.status(200).json(order);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// UPDATE Order by ID
+const updateOrder = async (req, res) => {
+  try {
+    const updatedOrder = await Order.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      {
+        new: true,
+      }
+    );
+    if (!updatedOrder)
+      return res.status(404).json({ error: "Order not found" });
+    res.status(200).json(updatedOrder);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// DELETE Order by ID
+const deleteOrder = async (req, res) => {
+  try {
+    const deletedOrder = await Order.findByIdAndDelete(req.params.id);
+    if (!deletedOrder)
+      return res.status(404).json({ error: "Order not found" });
+    res.status(200).json({ message: "Order deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+module.exports = {
+  createOrder,
+  getAllOrders,
+  getOrderById,
+  updateOrder,
+  deleteOrder,
+};

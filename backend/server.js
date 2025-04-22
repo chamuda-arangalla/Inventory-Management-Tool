@@ -7,10 +7,10 @@ const app = express();
 app.use(express.json());
 
 //import routes
-const userRoutes = require("./routes/user.js");
+const orderRoutes = require("./routes/order.js");
 
 //routes
-app.use("/api/users", userRoutes);
+app.use("/api/orders", orderRoutes);
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
