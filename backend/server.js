@@ -8,9 +8,11 @@ app.use(express.json());
 
 //import routes
 const orderRoutes = require("./routes/order.js");
+const ProductRouter = require("./routes/product.js");
 
 //routes
 app.use("/api/orders", orderRoutes);
+app.use("/api/products", ProductRouter);
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
