@@ -1,10 +1,15 @@
 const express = require("express");
 const dotenv = require("dotenv");
+const bodyParser = require("body-parser");
 require("dotenv").config();
+const cors = require("cors");
 const { connectDB } = require("./utils/connection");
 
 const app = express();
 app.use(express.json());
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
+app.use(cors());
 
 //import routes
 const orderRoutes = require("./routes/order.js");

@@ -1,0 +1,201 @@
+import React, { useState } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
+
+const AddProducts = () => {
+  const [productName, setProductName] = useState("");
+  const [productCode, setProductCode] = useState("");
+  const [productUnitPrice, setProductUnitPrice] = useState("");
+  const [productQuantity, setProductQuantity] = useState("");
+  const [productImage, setProductImage] = useState("");
+  const [formErrors, setFormErrors] = useState({});
+
+  const handleFileChange = (e) => {
+    setProductImage(e.target.files[0]);
+  };
+
+  const validateForm = () => {
+    let errors = {};
+    let formIsValid = true;
+
+    if (!productName) {
+      formIsValid = false;
+      errors["productName"] = "Please enter product name";
+    }
+
+    if (!productCode) {
+      formIsValid = false;
+      errors["productCode"] = "Please enter product code";
+    }
+
+    if (!productUnitPrice) {
+      formIsValid = false;
+      errors["productUnitPrice"] = "Please enter unit price";
+    }
+
+    if (!productQuantity) {
+      formIsValid = false;
+      errors["productQuantity"] = "Please enter quantity";
+    }
+
+    if (!productImage) {
+      formIsValid = false;
+      errors["productImage"] = "Please select a product image";
+    }
+
+    setFormErrors(errors);
+    return formIsValid;
+  };
+
+  const resetForm = () => {
+    setProductName("");
+    setProductCode("");
+    setProductUnitPrice("");
+    setProductQuantity("");
+    setProductImage("");
+    setFormErrors({});
+  };
+
+  const addProduct = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append("productName", productName);
+      formData.append("productCode", productCode);
+      formData.append("productUnitPrice", productUnitPrice);
+      formData.append("productQuantity", productQuantity);
+      formData.append("productImage", productImage);
+
+      await axios.post("/api/products/createProduct", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      resetForm();
+      toast.success("Product added successfully 👌");
+    } catch (error) {
+      console.error("Error occurred:", error);
+    }
+  };
+
+  return (
+    <div className="mt-20 bg-white p-6 rounded-lg shadow-md max-w-xl mx-auto">
+      <h2 className="text-xl font-bold text-gray-800 mb-6">
+        Add New Product
+      </h2>
+      <form onSubmit={addProduct} encType="multipart/form-data" className="space-y-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Product Name
+          </label>
+          <input
+            type="text"
+            value={productName}
+            onChange={(e) => setProductName(e.target.value)}
+            className={`w-full px-3 py-2 border rounded-md ${
+              formErrors.productName ? "border-red-500" : "border-gray-300"
+            }`}
+            placeholder="Enter product name"
+          />
+          {formErrors.productName && (
+            <p className="text-red-500 text-sm mt-1">{formErrors.productName}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Product Code
+          </label>
+          <input
+            type="text"
+            value={productCode}
+            onChange={(e) => setProductCode(e.target.value)}
+            className={`w-full px-3 py-2 border rounded-md ${
+              formErrors.productCode ? "border-red-500" : "border-gray-300"
+            }`}
+            placeholder="Enter product code"
+          />
+          {formErrors.productCode && (
+            <p className="text-red-500 text-sm mt-1">{formErrors.productCode}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Unit Price
+          </label>
+          <input
+            type="text"
+            value={productUnitPrice}
+            onChange={(e) => setProductUnitPrice(e.target.value)}
+            className={`w-full px-3 py-2 border rounded-md ${
+              formErrors.productUnitPrice ? "border-red-500" : "border-gray-300"
+            }`}
+            placeholder="Enter unit price"
+          />
+          {formErrors.productUnitPrice && (
+            <p className="text-red-500 text-sm mt-1">{formErrors.productUnitPrice}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Quantity
+          </label>
+          <input
+            type="text"
+            value={productQuantity}
+            onChange={(e) => setProductQuantity(e.target.value)}
+            className={`w-full px-3 py-2 border rounded-md ${
+              formErrors.productQuantity ? "border-red-500" : "border-gray-300"
+            }`}
+            placeholder="Enter quantity"
+          />
+          {formErrors.productQuantity && (
+            <p className="text-red-500 text-sm mt-1">{formErrors.productQuantity}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Product Image
+          </label>
+          <input
+            type="file"
+            onChange={handleFileChange}
+            className={`w-full px-3 py-2 border rounded-md ${
+              formErrors.productImage ? "border-red-500" : "border-gray-300"
+            }`}
+          />
+          {formErrors.productImage && (
+            <p className="text-red-500 text-sm mt-1">{formErrors.productImage}</p>
+          )}
+        </div>
+
+        <div className="flex justify-end space-x-3">
+          <button
+            type="button"
+            onClick={resetForm}
+            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-500"
+          >
+            Reset
+          </button>
+          <button
+            type="submit"
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            Create Product
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+export default AddProducts;
