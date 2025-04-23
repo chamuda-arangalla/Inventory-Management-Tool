@@ -6,7 +6,6 @@ import {
   TruckIcon,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import "./Sidebar.css";
 
 const Sidebar = () => {
   const location = useLocation();
@@ -19,19 +18,19 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside className="sidebar">
-      <nav className="sidebar-nav">
-        <ul className="sidebar-list">
+    <aside className="h-screen w-64 bg-gradient-to-b from-gray-800 to-indigo-900 text-white shadow-lg">
+      <nav className="p-6">
+        <ul className="space-y-4">
           {navItems.map((item) => (
             <li key={item.id}>
               <Link
                 to={item.id}
-                className={`sidebar-btn ${
-                  location.pathname === item.id ? "active" : ""
+                className={`flex items-center gap-3 px-4 py-2 rounded-lg transition duration-200 hover:bg-indigo-800 ${
+                  location.pathname === item.id ? "bg-indigo-800 font-semibold" : ""
                 }`}
               >
-                <item.icon className="sidebar-icon" />
-                <span>{item.label}</span>
+                <item.icon className="w-5 h-5" />
+                <span className="text-base">{item.label}</span>
               </Link>
             </li>
           ))}
