@@ -1,0 +1,8 @@
+footer {
+    background-color: #14294a; /* Tailwind: bg-slate-800 */
+    color: #d1d5db;            /* Tailwind: text-gray-300 */
+    padding: 1rem;
+    text-align: center;
+    font-size: 0.875rem;
+  }
+  
