@@ -3,7 +3,6 @@ const ProductRouter = express.Router();
 const upload = require('../middleware/uploadMiddleware');
 
 
-
 const {
     createProduct,
     getAllProducts,
