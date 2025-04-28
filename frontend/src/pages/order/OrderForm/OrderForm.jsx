@@ -1,334 +1,305 @@
 import React, { useEffect, useState } from "react";
-import { CalendarIcon, XIcon } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import axios from "axios";
+import { toast } from "sonner";
 
-const OrderForm = ({ products, onSubmit }) => {
+const OrderForm = () => {
+  const [products, setProducts] = useState([]);
+  const [selectedProducts, setSelectedProducts] = useState([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
   const [customerName, setCustomerName] = useState("");
-  const [address, setAddress] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [address, setAddress] = useState("");
   const [orderDate, setOrderDate] = useState(new Date());
-  const [selectedProducts, setSelectedProducts] = useState({});
-  const [showProductDropdown, setShowProductDropdown] = useState(false);
-  const [errors, setErrors] = useState({});
-  const [total, setTotal] = useState(0);
+  const [totalPrice, setTotalPrice] = useState(0);
 
   useEffect(() => {
-    let newTotal = 0;
-    Object.entries(selectedProducts).forEach(([productId, quantity]) => {
-      const product = products.find((p) => p.id === productId);
-      if (product) {
-        newTotal += product.price * quantity;
+    const fetchProducts = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:6500/api/products/getAllProductNames"
+        );
+        setProducts(res.data.allproducts);
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
       }
-    });
-    setTotal(newTotal);
+    };
+
+    fetchProducts();
+  }, []);
+
+  // Handle selecting/deselecting a product
+  const handleProductChange = (productId) => {
+    const existingProduct = selectedProducts.find(
+      (p) => p.productId === productId
+    );
+
+    if (existingProduct) {
+      // Remove it
+      setSelectedProducts(
+        selectedProducts.filter((p) => p.productId !== productId)
+      );
+    } else {
+      // Add new with quantity 1
+      setSelectedProducts([...selectedProducts, { productId, quantity: 1 }]);
+    }
+  };
+
+  // Handle quantity change
+  const handleQuantityChange = (productId, quantity) => {
+    const updatedProducts = selectedProducts.map((item) =>
+      item.productId === productId
+        ? { ...item, quantity: Number(quantity) }
+        : item
+    );
+    setSelectedProducts(updatedProducts);
+  };
+
+  // Recalculate total price whenever selected products or their quantity changes
+  useEffect(() => {
+    const newTotalPrice = selectedProducts.reduce((total, item) => {
+      const product = products.find((p) => p._id === item.productId);
+      if (!product) return total;
+
+      const unitPrice = parseFloat(
+        product.productUnitPrice.replace("Rs.", "").replace(",", "")
+      );
+      return total + unitPrice * item.quantity;
+    }, 0);
+
+    setTotalPrice(newTotalPrice);
   }, [selectedProducts, products]);
 
-  const validateForm = () => {
-    const newErrors = {};
-    if (!customerName.trim()) {
-      newErrors.customerName = "Customer name is required";
-    }
-    if (!address.trim()) {
-      newErrors.address = "Address is required";
-    }
-    const phoneRegex = /^\d{10}$/;
-    if (!phoneRegex.test(phoneNumber)) {
-      newErrors.phoneNumber = "Please enter a valid 10-digit phone number";
-    }
-    if (!orderDate) {
-      newErrors.orderDate = "Order date is required";
-    }
-    if (Object.keys(selectedProducts).length === 0) {
-      newErrors.products = "Please select at least one product";
-    }
-    Object.entries(selectedProducts).forEach(([productId, quantity]) => {
-      if (quantity <= 0) {
-        newErrors[`quantity_${productId}`] = "Quantity must be greater than 0";
-      }
-    });
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  const handleInputChange = (e) => {
+    const { id, value } = e.target;
+    if (id === "customerName") setCustomerName(value);
+    if (id === "phoneNumber") setPhoneNumber(value);
+    if (id === "address") setAddress(value);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validateForm()) {
-      const selectedProductsWithDetails = Object.entries(selectedProducts).map(
-        ([productId, quantity]) => {
-          const product = products.find((p) => p.id === productId);
-          return {
-            productId,
-            name: product?.name,
-            price: product?.price,
-            quantity,
-          };
-        }
-      );
-      const order = {
-        customerName,
-        address,
-        phoneNumber,
-        orderDate,
-        products: selectedProductsWithDetails,
-        total,
-        status: "Pending",
-        id: Date.now().toString(),
-      };
-      onSubmit(order);
-      resetForm();
+
+    if (
+      customerName.trim() === "" ||
+      phoneNumber.trim() === "" ||
+      address.trim() === "" ||
+      !orderDate ||
+      selectedProducts.length === 0
+    ) {
+      toast.error("Please fill out all required fields!");
+      return;
+    }
+
+    const orderData = {
+      customerName,
+      phoneNumber,
+      address,
+      orderDate,
+      products: selectedProducts, // Now sending productId + quantity
+      totalAmount: totalPrice,
+    };
+
+    try {
+      await axios.post("http://localhost:6500/api/orders/", orderData);
+      toast.success("Order placed successfully!");
+
+      setCustomerName("");
+      setPhoneNumber("");
+      setAddress("");
+      setOrderDate(new Date());
+      setSelectedProducts([]);
+      setTotalPrice(0);
+      setIsDropdownOpen(false);
+    } catch (error) {
+      console.error("Error placing order:", error);
+      toast.error("Failed to place order. Please try again.");
     }
   };
 
-  const resetForm = () => {
+  const handleReset = () => {
     setCustomerName("");
-    setAddress("");
     setPhoneNumber("");
+    setAddress("");
     setOrderDate(new Date());
-    setSelectedProducts({});
-    setErrors({});
+    setSelectedProducts([]);
+    setTotalPrice(0);
+    setIsDropdownOpen(false);
   };
 
-  const toggleProductSelection = (productId) => {
-    if (selectedProducts[productId]) {
-      const newSelectedProducts = { ...selectedProducts };
-      delete newSelectedProducts[productId];
-      setSelectedProducts(newSelectedProducts);
-    } else {
-      setSelectedProducts({
-        ...selectedProducts,
-        [productId]: 1,
-      });
-    }
-  };
-
-  const updateQuantity = (productId, quantity) => {
-    setSelectedProducts({
-      ...selectedProducts,
-      [productId]: quantity,
-    });
-  };
+  const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-xl font-semibold text-gray-800 mb-6">
+    <div className="p-6 bg-white rounded-lg shadow-md">
+      <h2 className="mb-6 text-xl font-semibold text-gray-800">
         Place New Order
       </h2>
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <form className="space-y-6" onSubmit={handleSubmit}>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          {/* Customer Info */}
           <div>
             <label
               htmlFor="customerName"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block mb-1 text-sm font-medium text-gray-700"
             >
               Customer Name
             </label>
             <input
               type="text"
               id="customerName"
-              value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md ${
-                errors.customerName ? "border-red-500" : "border-gray-300"
-              }`}
+              className="w-full px-3 py-2 border rounded-md"
               placeholder="Enter customer name"
+              value={customerName}
+              onChange={handleInputChange}
             />
-            {errors.customerName && (
-              <p className="text-red-500 text-sm mt-1">{errors.customerName}</p>
-            )}
           </div>
           <div>
             <label
               htmlFor="phoneNumber"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block mb-1 text-sm font-medium text-gray-700"
             >
               Phone Number
             </label>
             <input
               type="text"
               id="phoneNumber"
-              value={phoneNumber}
-              onChange={(e) =>
-                setPhoneNumber(e.target.value.replace(/\D/g, ""))
-              }
-              className={`w-full px-3 py-2 border rounded-md ${
-                errors.phoneNumber ? "border-red-500" : "border-gray-300"
-              }`}
+              className="w-full px-3 py-2 border rounded-md"
               placeholder="Enter 10-digit phone number"
               maxLength={10}
+              value={phoneNumber}
+              onChange={handleInputChange}
             />
-            {errors.phoneNumber && (
-              <p className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>
-            )}
           </div>
           <div className="md:col-span-2">
             <label
               htmlFor="address"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block mb-1 text-sm font-medium text-gray-700"
             >
               Address
             </label>
             <textarea
               id="address"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
               rows={3}
-              className={`w-full px-3 py-2 border rounded-md ${
-                errors.address ? "border-red-500" : "border-gray-300"
-              }`}
+              className="w-full px-3 py-2 border rounded-md"
               placeholder="Enter delivery address"
+              value={address}
+              onChange={handleInputChange}
             />
-            {errors.address && (
-              <p className="text-red-500 text-sm mt-1">{errors.address}</p>
-            )}
           </div>
+
+          {/* Order Date */}
           <div>
             <label
               htmlFor="orderDate"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block mb-1 text-sm font-medium text-gray-700"
             >
               Order Date
             </label>
             <div className="relative">
               <DatePicker
+                dateFormat="MMMM d, yyyy"
                 selected={orderDate}
                 onChange={(date) => setOrderDate(date)}
-                dateFormat="MMMM d, yyyy"
-                className={`w-full px-3 py-2 border rounded-md ${
-                  errors.orderDate ? "border-red-500" : "border-gray-300"
-                }`}
+                className="w-full px-3 py-2 border rounded-md"
               />
               <CalendarIcon className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
             </div>
-            {errors.orderDate && (
-              <p className="text-red-500 text-sm mt-1">{errors.orderDate}</p>
-            )}
           </div>
+
+          {/* Products Dropdown */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block mb-1 text-sm font-medium text-gray-700">
               Select Products
             </label>
             <div className="relative">
               <button
                 type="button"
-                onClick={() => setShowProductDropdown(!showProductDropdown)}
-                className={`w-full px-3 py-2 border rounded-md text-left flex justify-between items-center ${
-                  errors.products ? "border-red-500" : "border-gray-300"
-                }`}
+                className="flex items-center justify-between w-full px-3 py-2 border rounded-md"
+                onClick={toggleDropdown}
               >
                 <span>
-                  {Object.keys(selectedProducts).length > 0
-                    ? `${
-                        Object.keys(selectedProducts).length
-                      } products selected`
-                    : "Select products"}
+                  {selectedProducts.length > 0
+                    ? "Products Selected"
+                    : "Select Products"}
                 </span>
-                <span className="text-gray-500">▼</span>
+                <span className="text-gray-400">
+                  {isDropdownOpen ? "▲" : "▼"}
+                </span>
               </button>
-              {showProductDropdown && (
-                <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                  {products.map((product) => (
-                    <label
-                      key={product.id}
-                      className="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={!!selectedProducts[product.id]}
-                        onChange={() => toggleProductSelection(product.id)}
-                        className="mr-2"
-                      />
-                      <span>{product.name}</span>
-                      <span className="ml-auto text-gray-500">
-                        ${product.price.toFixed(2)}
-                      </span>
-                    </label>
-                  ))}
+              {isDropdownOpen && (
+                <div className="absolute z-10 w-full mt-2 overflow-y-auto bg-white border rounded-md shadow-lg max-h-60">
+                  <div className="p-2 space-y-2">
+                    {products.map((product) => (
+                      <div
+                        key={product._id}
+                        className="flex items-center justify-between"
+                      >
+                        <label className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            value={product._id}
+                            checked={selectedProducts.some(
+                              (p) => p.productId === product._id
+                            )}
+                            onChange={() => handleProductChange(product._id)}
+                            className="w-4 h-4 text-blue-600 border-gray-300 rounded"
+                          />
+                          <span className="text-sm text-gray-700">
+                            {product.productName} - {product.productUnitPrice}
+                          </span>
+                        </label>
+
+                        {selectedProducts.some(
+                          (p) => p.productId === product._id
+                        ) && (
+                          <input
+                            type="number"
+                            min="1"
+                            value={
+                              selectedProducts.find(
+                                (p) => p.productId === product._id
+                              )?.quantity || 1
+                            }
+                            onChange={(e) =>
+                              handleQuantityChange(product._id, e.target.value)
+                            }
+                            className="w-16 px-2 py-1 ml-2 text-sm border rounded"
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
-            {errors.products && (
-              <p className="text-red-500 text-sm mt-1">{errors.products}</p>
-            )}
           </div>
         </div>
-        {Object.keys(selectedProducts).length > 0 && (
-          <div className="mt-6 border-t pt-4">
-            <h3 className="text-lg font-medium text-gray-800 mb-3">
-              Selected Products
-            </h3>
-            <div className="space-y-4">
-              {Object.entries(selectedProducts).map(([productId, quantity]) => {
-                const product = products.find((p) => p.id === productId);
-                return (
-                  <div
-                    key={productId}
-                    className="flex items-center justify-between"
-                  >
-                    <div className="flex-1">
-                      <p className="font-medium">{product?.name}</p>
-                      <p className="text-sm text-gray-500">
-                        ${product?.price.toFixed(2)} each
-                      </p>
-                    </div>
-                    <div className="flex items-center">
-                      <label className="mr-2 text-sm text-gray-700">
-                        Quantity:
-                      </label>
-                      <input
-                        type="number"
-                        min="1"
-                        value={quantity}
-                        onChange={(e) =>
-                          updateQuantity(
-                            productId,
-                            parseInt(e.target.value) || 0
-                          )
-                        }
-                        className={`w-16 px-2 py-1 border rounded-md ${
-                          errors[`quantity_${productId}`]
-                            ? "border-red-500"
-                            : "border-gray-300"
-                        }`}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => toggleProductSelection(productId)}
-                        className="ml-2 text-gray-500 hover:text-red-500"
-                      >
-                        <XIcon className="h-5 w-5" />
-                      </button>
-                    </div>
-                    {errors[`quantity_${productId}`] && (
-                      <p className="text-red-500 text-sm ml-2">
-                        {errors[`quantity_${productId}`]}
-                      </p>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-        <div className="bg-blue-50 p-4 rounded-md">
-          <div className="flex justify-between items-center">
+
+        {/* Total Price */}
+        <div className="p-4 rounded-md bg-blue-50">
+          <div className="flex items-center justify-between">
             <h3 className="text-lg font-medium text-gray-800">Order Total</h3>
             <p className="text-xl font-bold text-blue-700">
-              ${total.toFixed(2)}
+              Rs. {totalPrice.toFixed(2)}
             </p>
           </div>
         </div>
+
+        {/* Buttons */}
         <div className="flex justify-end space-x-4">
           <button
             type="button"
-            onClick={resetForm}
-            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+            onClick={handleReset}
+            className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
           >
             Reset Form
           </button>
           <button
             type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700"
           >
             Place Order
           </button>

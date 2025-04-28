@@ -1,50 +1,77 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { TrashIcon } from "lucide-react";
+import { toast } from "sonner";
 
 const OrdersList = () => {
+  const [orders, setOrders] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(null);
 
-  const orders = [
-    {
-      id: "1",
-      customerName: "John Doe",
-      orderDate: new Date("2025-04-20"),
-      products: [
-        { productId: "1", name: "Product A", quantity: 2, price: 10 },
-        { productId: "2", name: "Product B", quantity: 1, price: 20 },
-      ],
-      total: 40,
-      status: "Pending",
-    },
-    {
-      id: "2",
-      customerName: "Jane Smith",
-      orderDate: new Date("2025-04-18"),
-      products: [{ productId: "2", name: "Product B", quantity: 3, price: 20 }],
-      total: 60,
-      status: "Delivered",
-    },
-  ];
+  // Fetch order data from the API
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const response = await axios.get("http://localhost:6500/api/orders/");
+        setOrders(response.data); // Store fetched data in state
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+      }
+    };
 
-  const products = [
-    { id: "1", name: "Product A", price: 10 },
-    { id: "2", name: "Product B", price: 20 },
-  ];
+    fetchOrders();
+  }, []);
 
-  const onUpdateStatus = (orderId, newStatus) => {
-    // Update order status
-    console.log(`Order ${orderId} status updated to ${newStatus}`);
+  // Update order status
+  const onUpdateStatus = async (orderId, newStatus) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:6500/api/orders/${orderId}`,
+        {
+          status: newStatus,
+        }
+      );
+      // Update the order list with the new status
+      setOrders(
+        orders.map((order) =>
+          order._id === orderId ? { ...order, status: newStatus } : order
+        )
+      );
+      toast.success(`Order status updated to ${newStatus}`);
+      console.log(`Order ${orderId} status updated to ${newStatus}`);
+    } catch (error) {
+      toast.error("Failed to update order. Please try again.");
+      console.error(
+        "Error updating order status:",
+        error.response ? error.response.data : error.message
+      );
+    }
   };
 
-  const onDeleteOrder = (orderId) => {
-    // Handle order deletion
-    console.log(`Order ${orderId} deleted`);
+  // Delete order
+  const onDeleteOrder = async (orderId) => {
+    try {
+      const response = await axios.delete(
+        `http://localhost:6500/api/orders/${orderId}`
+      );
+      // Remove the deleted order from the list
+      setOrders(orders.filter((order) => order._id !== orderId));
+      console.log(`Order ${orderId} deleted`);
+      toast.success("Order deleted successfully!");
+    } catch (error) {
+      console.error(
+        "Error deleting order:",
+        error.response ? error.response.data : error.message
+      );
+      toast.error("Failed to delete order. Please try again.");
+    }
   };
 
+  // Show delete confirmation modal
   const handleDeleteClick = (orderId) => {
     setShowDeleteModal(orderId);
   };
 
+  // Confirm delete
   const confirmDelete = () => {
     if (showDeleteModal) {
       onDeleteOrder(showDeleteModal);
@@ -55,7 +82,7 @@ const OrdersList = () => {
   return (
     <div className="bg-white rounded-lg shadow-md">
       <div className="p-6 border-b border-gray-200">
-        <div className="flex justify-between items-center">
+        <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold text-gray-800">Orders List</h2>
         </div>
       </div>
@@ -65,37 +92,37 @@ const OrdersList = () => {
             <tr>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
               >
                 Customer Name
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
               >
                 Order Date
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
               >
                 Products Ordered
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
               >
                 Total Cost
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
               >
                 Status
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
               >
                 Actions
               </th>
@@ -104,24 +131,24 @@ const OrdersList = () => {
           <tbody className="bg-white divide-y divide-gray-200">
             {orders.length > 0 ? (
               orders.map((order) => (
-                <tr key={order.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                <tr key={order._id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">
                     {order.customerName}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {order.orderDate?.toLocaleDateString()}
+                  <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
+                    {new Date(order.orderDate).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500">
                     <ul className="list-disc list-inside">
                       {order.products.map((product, index) => (
                         <li key={index}>
-                          {product.name} (x{product.quantity})
+                          {product.productId.productName} (x{product.quantity})
                         </li>
                       ))}
                     </ul>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    ${order.total.toFixed(2)}
+                  <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
+                    {order.totalAmount}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
@@ -136,24 +163,24 @@ const OrdersList = () => {
                       {order.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <td className="px-6 py-4 text-sm font-medium whitespace-nowrap">
                     <div className="flex items-center space-x-3">
                       <select
                         value={order.status}
                         onChange={(e) =>
-                          onUpdateStatus(order.id, e.target.value)
+                          onUpdateStatus(order._id, e.target.value)
                         }
-                        className="text-sm border border-gray-300 rounded-md px-2 py-1"
+                        className="px-2 py-1 text-sm border border-gray-300 rounded-md"
                       >
                         <option value="Pending">Pending</option>
                         <option value="Delivered">Delivered</option>
                         <option value="Cancelled">Cancelled</option>
                       </select>
                       <button
-                        onClick={() => handleDeleteClick(order.id)}
+                        onClick={() => handleDeleteClick(order._id)}
                         className="text-red-500 hover:text-red-700"
                       >
-                        <TrashIcon className="h-5 w-5" />
+                        <TrashIcon className="w-5 h-5" />
                       </button>
                     </div>
                   </td>
@@ -163,7 +190,7 @@ const OrdersList = () => {
               <tr>
                 <td
                   colSpan={6}
-                  className="px-6 py-4 text-center text-sm text-gray-500"
+                  className="px-6 py-4 text-sm text-center text-gray-500"
                 >
                   No orders found matching the selected filters
                 </td>
@@ -174,25 +201,25 @@ const OrdersList = () => {
       </div>
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-lg">
+            <h3 className="mb-4 text-lg font-medium text-gray-900">
               Confirm Deletion
             </h3>
-            <p className="text-gray-500 mb-6">
+            <p className="mb-6 text-gray-500">
               Are you sure you want to delete this order? This action cannot be
               undone.
             </p>
             <div className="flex justify-end space-x-3">
               <button
                 onClick={() => setShowDeleteModal(null)}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmDelete}
-                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                className="px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700"
               >
                 Delete
               </button>

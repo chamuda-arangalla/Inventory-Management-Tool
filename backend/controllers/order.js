@@ -1,34 +1,55 @@
 const Order = require("../models/order");
+const mongoose = require("mongoose");
 
-// CREATE Order
+//create order
 const createOrder = async (req, res) => {
   try {
-    const order = new Order(req.body);
-    const savedOrder = await order.save();
-    res.status(201).json(savedOrder);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const {
+      customerName,
+      address,
+      phoneNumber,
+      orderDate,
+      products,
+      totalAmount,
+    } = req.body;
+
+    const newOrder = new Order({
+      customerName,
+      address,
+      phoneNumber,
+      orderDate,
+      products,
+      totalAmount,
+    });
+
+    const savedOrder = await newOrder.save();
+
+    res.status(201).json({
+      message: "Order created successfully",
+      order: savedOrder,
+    });
+  } catch (error) {
+    console.error("Error creating order:", error);
+    res.status(500).json({ message: "Server error. Failed to create order." });
   }
 };
 
-// READ all Orders
+// get all
 const getAllOrders = async (req, res) => {
   try {
-    const orders = await Order.find();
-    //.populate("products.productId");
+    const orders = await Order.find().populate("products.productId");
     res.status(200).json(orders);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-// READ one Order by ID
+// get on by id
 const getOrderById = async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id);
-    // .populate(
-    //   "products.productId"
-    // );
+    const order = await Order.findById(req.params.id).populate(
+      "products.productId"
+    );
     if (!order) return res.status(404).json({ error: "Order not found" });
     res.status(200).json(order);
   } catch (err) {
@@ -36,7 +57,7 @@ const getOrderById = async (req, res) => {
   }
 };
 
-// UPDATE Order by ID
+// update
 const updateOrder = async (req, res) => {
   try {
     const updatedOrder = await Order.findByIdAndUpdate(
@@ -54,7 +75,7 @@ const updateOrder = async (req, res) => {
   }
 };
 
-// DELETE Order by ID
+// delete
 const deleteOrder = async (req, res) => {
   try {
     const deletedOrder = await Order.findByIdAndDelete(req.params.id);
