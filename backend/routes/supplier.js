@@ -2,14 +2,13 @@ const express = require('express');
 const SupplierRouter = express.Router();
 const mongoose = require('mongoose');
 
-// Import controller methods
 const {
   createSupplier,
   getAllSuppliers,
   getSupplierById,
   updateSupplier,
   deleteSupplier
-} = require('../controllers/supplier'); // Assuming controller file name is supplierController.js
+} = require('../controllers/supplier');
 
 // Create supplier
 SupplierRouter.post('/', createSupplier);
