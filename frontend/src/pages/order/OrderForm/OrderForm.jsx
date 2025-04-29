@@ -142,6 +142,7 @@ const OrderForm = () => {
     setSelectedProducts([]);
     setTotalPrice(0);
     setIsDropdownOpen(false);
+    toast.success("Reset Form successfully!");
   };
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
