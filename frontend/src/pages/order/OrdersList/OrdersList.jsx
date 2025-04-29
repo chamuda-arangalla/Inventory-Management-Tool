@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { TrashIcon } from "lucide-react";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 const OrdersList = () => {
   const [orders, setOrders] = useState([]);
@@ -84,10 +85,19 @@ const OrdersList = () => {
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold text-gray-800">Orders List</h2>
+          <Link
+            to="/orders/createorder"
+            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+          >
+            Create New Order
+          </Link>
         </div>
       </div>
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
+        <table
+          data-cy="orders-table"
+          className="min-w-full divide-y divide-gray-200"
+        >
           <thead className="bg-gray-50">
             <tr>
               <th
@@ -166,6 +176,7 @@ const OrdersList = () => {
                   <td className="px-6 py-4 text-sm font-medium whitespace-nowrap">
                     <div className="flex items-center space-x-3">
                       <select
+                        data-cy={`status-select-${order._id}`}
                         value={order.status}
                         onChange={(e) =>
                           onUpdateStatus(order._id, e.target.value)
@@ -177,6 +188,7 @@ const OrdersList = () => {
                         <option value="Cancelled">Cancelled</option>
                       </select>
                       <button
+                        data-cy={`delete-button-${order._id}`}
                         onClick={() => handleDeleteClick(order._id)}
                         className="text-red-500 hover:text-red-700"
                       >
@@ -218,6 +230,7 @@ const OrdersList = () => {
                 Cancel
               </button>
               <button
+                data-cy="confirm-delete-button"
                 onClick={confirmDelete}
                 className="px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700"
               >

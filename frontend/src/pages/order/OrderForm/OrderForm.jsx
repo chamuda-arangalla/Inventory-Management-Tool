@@ -22,9 +22,14 @@ const OrderForm = () => {
         const res = await axios.get(
           "http://localhost:6500/api/products/getAllProductNames"
         );
-        setProducts(res.data.allproducts);
+        if (res.data.allproducts?.length > 0) {
+          setProducts(res.data.allproducts);
+        } else {
+          toast.error("No products available");
+        }
       } catch (error) {
         console.error("Failed to fetch products:", error);
+        toast.error("Failed to load products");
       }
     };
 
@@ -94,6 +99,15 @@ const OrderForm = () => {
       return;
     }
 
+    // Phone number validation: must be exactly 10 digits and only numbers
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(phoneNumber)) {
+      toast.error(
+        "Phone number must be exactly 10 digits and contain only numbers!"
+      );
+      return;
+    }
+
     const orderData = {
       customerName,
       phoneNumber,
@@ -150,6 +164,7 @@ const OrderForm = () => {
             <input
               type="text"
               id="customerName"
+              data-cy="customer-name"
               className="w-full px-3 py-2 border rounded-md"
               placeholder="Enter customer name"
               value={customerName}
@@ -166,6 +181,7 @@ const OrderForm = () => {
             <input
               type="text"
               id="phoneNumber"
+              data-cy="phone-number"
               className="w-full px-3 py-2 border rounded-md"
               placeholder="Enter 10-digit phone number"
               maxLength={10}
@@ -182,6 +198,7 @@ const OrderForm = () => {
             </label>
             <textarea
               id="address"
+              data-cy="address"
               rows={3}
               className="w-full px-3 py-2 border rounded-md"
               placeholder="Enter delivery address"
@@ -200,6 +217,7 @@ const OrderForm = () => {
             </label>
             <div className="relative">
               <DatePicker
+                name="orderDate"
                 dateFormat="MMMM d, yyyy"
                 selected={orderDate}
                 onChange={(date) => setOrderDate(date)}
@@ -217,61 +235,51 @@ const OrderForm = () => {
             <div className="relative">
               <button
                 type="button"
+                data-cy="toggle-product-dropdown"
                 className="flex items-center justify-between w-full px-3 py-2 border rounded-md"
                 onClick={toggleDropdown}
               >
-                <span>
-                  {selectedProducts.length > 0
-                    ? "Products Selected"
-                    : "Select Products"}
-                </span>
-                <span className="text-gray-400">
-                  {isDropdownOpen ? "▲" : "▼"}
-                </span>
+                {isDropdownOpen ? "Hide Products" : "Select Products"}
               </button>
               {isDropdownOpen && (
-                <div className="absolute z-10 w-full mt-2 overflow-y-auto bg-white border rounded-md shadow-lg max-h-60">
-                  <div className="p-2 space-y-2">
-                    {products.map((product) => (
+                <div className="p-4 mt-4 border rounded-md">
+                  {products.map((product) => {
+                    const isSelected = selectedProducts.some(
+                      (p) => p.productId === product._id
+                    );
+                    const quantity =
+                      selectedProducts.find((p) => p.productId === product._id)
+                        ?.quantity || 1;
+
+                    return (
                       <div
                         key={product._id}
-                        className="flex items-center justify-between"
+                        className="flex items-center justify-between mb-2"
                       >
-                        <label className="flex items-center space-x-2">
+                        <label className="flex items-center gap-2">
                           <input
                             type="checkbox"
-                            value={product._id}
-                            checked={selectedProducts.some(
-                              (p) => p.productId === product._id
-                            )}
+                            checked={isSelected}
                             onChange={() => handleProductChange(product._id)}
-                            className="w-4 h-4 text-blue-600 border-gray-300 rounded"
+                            data-cy={`product-checkbox-${product._id}`}
                           />
-                          <span className="text-sm text-gray-700">
-                            {product.productName} - {product.productUnitPrice}
-                          </span>
+                          {product.productName} ({product.productUnitPrice})
                         </label>
-
-                        {selectedProducts.some(
-                          (p) => p.productId === product._id
-                        ) && (
+                        {isSelected && (
                           <input
                             type="number"
-                            min="1"
-                            value={
-                              selectedProducts.find(
-                                (p) => p.productId === product._id
-                              )?.quantity || 1
-                            }
+                            min={1}
+                            value={quantity}
                             onChange={(e) =>
                               handleQuantityChange(product._id, e.target.value)
                             }
-                            className="w-16 px-2 py-1 ml-2 text-sm border rounded"
+                            data-cy={`product-quantity-${product._id}`}
+                            className="w-20 px-2 py-1 border rounded"
                           />
                         )}
                       </div>
-                    ))}
-                  </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -279,10 +287,16 @@ const OrderForm = () => {
         </div>
 
         {/* Total Price */}
-        <div className="p-4 rounded-md bg-blue-50">
+        <div
+          className="p-4 rounded-md bg-blue-50"
+          data-cy="order-total-section"
+        >
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-medium text-gray-800">Order Total</h3>
-            <p className="text-xl font-bold text-blue-700">
+            <p
+              className="text-xl font-bold text-blue-700"
+              data-cy="order-total-amount"
+            >
               Rs. {totalPrice.toFixed(2)}
             </p>
           </div>
@@ -293,12 +307,14 @@ const OrderForm = () => {
           <button
             type="button"
             onClick={handleReset}
+            data-cy="reset-button"
             className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
           >
             Reset Form
           </button>
           <button
             type="submit"
+            data-cy="submit-order-button"
             className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700"
           >
             Place Order
