@@ -15,11 +15,13 @@ app.use(cors());
 const orderRoutes = require("./routes/order.js");
 const ProductRouter = require("./routes/product.js");
 const UserRouter = require("./routes/user.js")
+const SupplierRouter = require("./routes/supplier.js")
 
 //routes
 app.use("/api/orders", orderRoutes);
 app.use("/api/products", ProductRouter);
 app.use("/api/users", UserRouter);
+app.use("/api/suppliers", SupplierRouter)
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {

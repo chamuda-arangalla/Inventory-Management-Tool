@@ -17,6 +17,10 @@ import "./App.css";
 import "react-toastify/dist/ReactToastify.css";
 import OrderForm from "./pages/order/OrderForm/OrderForm";
 import OrdersList from "./pages/order/OrdersList/OrdersList";
+import AddSupplier from "./pages/supplier/AddSupplier";
+import ViewSuppliers from "./pages/supplier/ViewSuppliers";
+import SupplierDetails from "./pages/supplier/SupplierDetails";
+import EditSupplierDetails from "./pages/supplier/EditSupplierDetails";
 
 function App() {
   return (
@@ -34,9 +38,12 @@ function App() {
               <Route path="/products" element={<Products />} />
               <Route path="/products/add" element={<AddProducts />} />
               <Route path="/products/update/:id" element={<UpdateProducts />} />
-              <Route path="/suppliers" element={<Supplier />} />
               <Route path="/signin" element={<Signin />} />
               <Route path="/signup" element={<Signup />} />
+              <Route path="/suppliers/add" element={<AddSupplier/>} />
+              <Route path="/suppliers" element={<ViewSuppliers />} />
+              <Route path="/suppliers/:id" element={<SupplierDetails />} />
+              <Route path="/suppliers/update/:id" element={<EditSupplierDetails />} />
             </Routes>
           </div>
         </div>
