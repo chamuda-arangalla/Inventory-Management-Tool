@@ -80,9 +80,11 @@ const AddProducts = () => {
         },
       });
 
-      resetForm();
       toast.success("Product added successfully 👌");
-      navigate("/products");
+      resetForm(); 
+      
+      
+
     } catch (error) {
       if (error.response && error.response.status === 409) {
         toast.error("Product code already exists ❌");
@@ -95,7 +97,7 @@ const AddProducts = () => {
 
 
   return (
-    <div className="mt-20 bg-white p-6 rounded-lg shadow-md max-w-xl mx-auto">
+    <div className="mt-15 bg-white p-6 rounded-lg shadow-md max-w-xl mx-auto">
       
       <h2 className="text-xl font-bold text-gray-800 mb-6">Add New Product</h2>
       <form
