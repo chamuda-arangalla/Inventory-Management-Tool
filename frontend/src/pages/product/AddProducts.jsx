@@ -81,6 +81,7 @@ const AddProducts = () => {
       });
 
       toast.success("Product added successfully 👌");
+      navigate('/products');
       resetForm(); 
       
       
