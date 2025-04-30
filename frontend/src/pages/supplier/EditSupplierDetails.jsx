@@ -65,7 +65,7 @@ const EditSupplierDetails = () => {
               className="w-full border border-gray-300 rounded-md p-2 bg-gray-100 text-gray-700"
               placeholder="Update Supplier ID"
               required
-              disabled
+              // disabled
             />
           </div>
 

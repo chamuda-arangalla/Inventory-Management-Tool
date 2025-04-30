@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { deleteSupplier, getSuppliers } from './SupplierApi';
-import { EyeIcon, TrashIcon } from 'lucide-react';
+import { EyeIcon, TrashIcon, PencilIcon } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 const ViewSuppliers = () => {
@@ -69,11 +69,11 @@ const handleDeleteClick = (supplierId) => {
 
 
   return (
-    <div className="container mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-6 text-center">ALL SUPPLIERS</h2>
-      <div className="flex justify-end mb-4">
+    <div className="p-8">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-semibold">Supplier Management</h1>
         <Link to="/suppliers/add">
-          <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow">
+          <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
             Add Supplier
           </button>
         </Link>
@@ -83,13 +83,16 @@ const handleDeleteClick = (supplierId) => {
         <input
           type="text"
           className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-400"
-          placeholder="Search by name, NIC, contact, address, or email"
+          placeholder="Search by name, contact, address, or email"
           value={search}
           onChange={handleSearchChange}
         />
       </div>
 
       <div className="bg-white shadow-md rounded-lg overflow-x-auto">
+      <div className="p-6 border-b">
+          <h2 className="text-lg font-semibold">Suppliers List</h2>
+        </div>
         <table className="min-w-full divide-y divide-gray-200 text-sm text-center">
           <thead className="bg-gray-100">
             <tr>
@@ -111,12 +114,12 @@ const handleDeleteClick = (supplierId) => {
                   <td className="px-4 py-2">{supplier.address}</td>
                   <td className="px-4 py-2">{supplier.email}</td>
                   <td className="px-4 py-2 flex justify-center gap-2">
-                    <Link to={`/suppliers/${supplier._id}`}>
+                    <Link to={`/suppliers/update/${supplier._id}`}>
                       <button
                         className="text-blue-500 hover:text-blue-700"
-                        onClick={() => handleView(supplier._id)}
+                        // onClick={() => handleView(supplier._id)}
                       >
-                        <EyeIcon className="w-5 h-5" />
+                        <PencilIcon className="w-5 h-5" />
                       </button>
                     </Link>
                     <button
