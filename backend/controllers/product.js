@@ -7,14 +7,14 @@ const createProduct = async (req, res) => {
     const { productName, productCode, productUnitPrice, productQuantity } =
       req.body;
 
-    // Check if product with the same name already exists
-    const existingProduct = await Product.findOne({ productName: productName });
+    // Check if product with the same code already exists
+    const existingProduct = await Product.findOne({ productCode: productCode });
 
     // If product already exists, return error
     if (existingProduct) {
-      return res.status(400).send({
+      return res.status(409).send({
         status: false,
-        message: "Product with the same name already exists",
+        message: "Product code already exists",
       });
     }
 

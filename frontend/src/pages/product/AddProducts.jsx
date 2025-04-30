@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const AddProducts = () => {
   const [productName, setProductName] = useState("");
@@ -9,6 +10,8 @@ const AddProducts = () => {
   const [productQuantity, setProductQuantity] = useState("");
   const [productImage, setProductImage] = useState("");
   const [formErrors, setFormErrors] = useState({});
+
+  const navigate = useNavigate();
 
   const handleFileChange = (e) => {
     setProductImage(e.target.files[0]);
@@ -79,17 +82,27 @@ const AddProducts = () => {
 
       resetForm();
       toast.success("Product added successfully 👌");
+      navigate("/products");
     } catch (error) {
-      console.error("Error occurred:", error);
+      if (error.response && error.response.status === 409) {
+        toast.error("Product code already exists ❌");
+      } else {
+        console.error("Error occurred:", error);
+        toast.error("Something went wrong. Please try again.");
+      }
     }
   };
 
+
   return (
     <div className="mt-20 bg-white p-6 rounded-lg shadow-md max-w-xl mx-auto">
-      <h2 className="text-xl font-bold text-gray-800 mb-6">
-        Add New Product
-      </h2>
-      <form onSubmit={addProduct} encType="multipart/form-data" className="space-y-6">
+      
+      <h2 className="text-xl font-bold text-gray-800 mb-6">Add New Product</h2>
+      <form
+        onSubmit={addProduct}
+        encType="multipart/form-data"
+        className="space-y-6"
+      >
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Product Name
@@ -178,21 +191,34 @@ const AddProducts = () => {
           )}
         </div>
 
-        <div className="flex justify-end space-x-3">
+        <div className="flex justify-between items-center mt-6">
+          {/* Back button on the left */}
           <button
             type="button"
-            onClick={resetForm}
-            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-500"
+            className="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-md shadow"
+            onClick={() => navigate(-1)}
           >
-            Reset
+            Back
           </button>
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            Create Product
-          </button>
+
+          {/* Reset and Submit buttons on the right */}
+          <div className="flex space-x-3">
+            <button
+              type="button"
+              onClick={resetForm}
+              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-500"
+            >
+              Reset
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              Create Product
+            </button>
+          </div>
         </div>
+
       </form>
     </div>
   );
