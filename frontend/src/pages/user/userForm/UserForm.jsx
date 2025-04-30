@@ -58,7 +58,7 @@ function UserForm({ onSubmit }) {
 
     try {
       setLoading(true);
-      const response = await fetch('/api/users', {
+      const response = await fetch('/api/users/add', {
         method: 'POST',
         body: data
       });
