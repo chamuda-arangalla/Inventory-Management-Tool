@@ -8,12 +8,11 @@ const OrdersList = () => {
   const [orders, setOrders] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(null);
 
-  // Fetch order data from the API
   useEffect(() => {
     const fetchOrders = async () => {
       try {
         const response = await axios.get("http://localhost:6500/api/orders/");
-        setOrders(response.data); // Store fetched data in state
+        setOrders(response.data);
       } catch (error) {
         console.error("Error fetching orders:", error);
       }
@@ -22,23 +21,17 @@ const OrdersList = () => {
     fetchOrders();
   }, []);
 
-  // Update order status
   const onUpdateStatus = async (orderId, newStatus) => {
     try {
-      const response = await axios.put(
-        `http://localhost:6500/api/orders/${orderId}`,
-        {
-          status: newStatus,
-        }
-      );
-      // Update the order list with the new status
+      await axios.put(`http://localhost:6500/api/orders/${orderId}`, {
+        status: newStatus,
+      });
       setOrders(
         orders.map((order) =>
           order._id === orderId ? { ...order, status: newStatus } : order
         )
       );
       toast.success(`Order status updated to ${newStatus}`);
-      console.log(`Order ${orderId} status updated to ${newStatus}`);
     } catch (error) {
       toast.error("Failed to update order. Please try again.");
       console.error(
@@ -48,15 +41,10 @@ const OrdersList = () => {
     }
   };
 
-  // Delete order
   const onDeleteOrder = async (orderId) => {
     try {
-      const response = await axios.delete(
-        `http://localhost:6500/api/orders/${orderId}`
-      );
-      // Remove the deleted order from the list
+      await axios.delete(`http://localhost:6500/api/orders/${orderId}`);
       setOrders(orders.filter((order) => order._id !== orderId));
-      console.log(`Order ${orderId} deleted`);
       toast.success("Order deleted successfully!");
     } catch (error) {
       console.error(
@@ -67,12 +55,10 @@ const OrdersList = () => {
     }
   };
 
-  // Show delete confirmation modal
   const handleDeleteClick = (orderId) => {
     setShowDeleteModal(orderId);
   };
 
-  // Confirm delete
   const confirmDelete = () => {
     if (showDeleteModal) {
       onDeleteOrder(showDeleteModal);
@@ -100,40 +86,22 @@ const OrdersList = () => {
         >
           <thead className="bg-gray-50">
             <tr>
-              <th
-                scope="col"
-                className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
-              >
+              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                 Customer Name
               </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
-              >
+              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                 Order Date
               </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
-              >
+              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                 Products Ordered
               </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
-              >
+              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                 Total Cost
               </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
-              >
+              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                 Status
               </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
-              >
+              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
                 Actions
               </th>
             </tr>
@@ -152,7 +120,8 @@ const OrdersList = () => {
                     <ul className="list-disc list-inside">
                       {order.products.map((product, index) => (
                         <li key={index}>
-                          {product.productId.productName} (x{product.quantity})
+                          {product.productId?.productName || "Unknown Product"}{" "}
+                          (x{product.quantity})
                         </li>
                       ))}
                     </ul>
@@ -211,7 +180,7 @@ const OrdersList = () => {
           </tbody>
         </table>
       </div>
-      {/* Delete Confirmation Modal */}
+
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-lg">
