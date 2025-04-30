@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const AddProducts = () => {
   const [productName, setProductName] = useState("");
@@ -97,16 +97,16 @@ const AddProducts = () => {
 
 
   return (
-    <div className="mt-15 bg-white p-6 rounded-lg shadow-md max-w-xl mx-auto">
+    <div className="max-w-xl p-6 mx-auto bg-white rounded-lg shadow-md mt-15">
       
-      <h2 className="text-xl font-bold text-gray-800 mb-6">Add New Product</h2>
+      <h2 className="mb-6 text-xl font-bold text-gray-800">Add New Product</h2>
       <form
         onSubmit={addProduct}
         encType="multipart/form-data"
         className="space-y-6"
       >
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block mb-1 text-sm font-medium text-gray-700">
             Product Name
           </label>
           <input
@@ -119,12 +119,12 @@ const AddProducts = () => {
             placeholder="Enter product name"
           />
           {formErrors.productName && (
-            <p className="text-red-500 text-sm mt-1">{formErrors.productName}</p>
+            <p className="mt-1 text-sm text-red-500">{formErrors.productName}</p>
           )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block mb-1 text-sm font-medium text-gray-700">
             Product Code
           </label>
           <input
@@ -137,12 +137,12 @@ const AddProducts = () => {
             placeholder="Enter product code"
           />
           {formErrors.productCode && (
-            <p className="text-red-500 text-sm mt-1">{formErrors.productCode}</p>
+            <p className="mt-1 text-sm text-red-500">{formErrors.productCode}</p>
           )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block mb-1 text-sm font-medium text-gray-700">
             Unit Price
           </label>
           <input
@@ -155,12 +155,12 @@ const AddProducts = () => {
             placeholder="Enter unit price"
           />
           {formErrors.productUnitPrice && (
-            <p className="text-red-500 text-sm mt-1">{formErrors.productUnitPrice}</p>
+            <p className="mt-1 text-sm text-red-500">{formErrors.productUnitPrice}</p>
           )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block mb-1 text-sm font-medium text-gray-700">
             Quantity
           </label>
           <input
@@ -173,12 +173,12 @@ const AddProducts = () => {
             placeholder="Enter quantity"
           />
           {formErrors.productQuantity && (
-            <p className="text-red-500 text-sm mt-1">{formErrors.productQuantity}</p>
+            <p className="mt-1 text-sm text-red-500">{formErrors.productQuantity}</p>
           )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block mb-1 text-sm font-medium text-gray-700">
             Product Image
           </label>
           <input
@@ -189,15 +189,15 @@ const AddProducts = () => {
             }`}
           />
           {formErrors.productImage && (
-            <p className="text-red-500 text-sm mt-1">{formErrors.productImage}</p>
+            <p className="mt-1 text-sm text-red-500">{formErrors.productImage}</p>
           )}
         </div>
 
-        <div className="flex justify-between items-center mt-6">
+        <div className="flex items-center justify-between mt-6">
           {/* Back button on the left */}
           <button
             type="button"
-            className="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-md shadow"
+            className="px-4 py-2 font-semibold text-white bg-gray-600 rounded-md shadow hover:bg-gray-700"
             onClick={() => navigate(-1)}
           >
             Back
@@ -208,13 +208,13 @@ const AddProducts = () => {
             <button
               type="button"
               onClick={resetForm}
-              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-500"
+              className="px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-500"
             >
               Reset
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700"
             >
               Create Product
             </button>
