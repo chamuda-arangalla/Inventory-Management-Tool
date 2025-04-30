@@ -9,7 +9,6 @@ import User from "./pages/user/User";
 import UpdateProducts from "./pages/product/UpdateProducts";
 import AddProducts from "./pages/product/AddProducts";
 import Products from "./pages/product/Products";
-import Supplier from "./pages/supplier/Supplier";
 import Signin from "./pages/signin/Signin";
 import Signup from "./pages/signup/Signup";
 
