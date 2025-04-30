@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import UserForm from './userForm/UserForm';
 import UserList from './userList/UserList';
+import "./UserMangement.css"
 
 
 function User() {
