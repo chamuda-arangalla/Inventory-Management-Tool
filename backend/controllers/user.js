@@ -9,6 +9,7 @@ exports.createUser = [
       const imageUrl = req.file ? `/uploads/${req.file.filename}` : undefined;
 
       const user = new User({ firstName, lastName, employeeId, nic, birthDate, designation, marriedStatus, age, imageUrl });
+
       await user.save();
       res.status(201).json({ success: true, data: user });
     } catch (error) {

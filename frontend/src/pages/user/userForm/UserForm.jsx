@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import "./Userform.css";
+import { toast } from "react-toastify";
 
 function UserForm({ onSubmit }) {
   const [formData, setFormData] = useState({
@@ -65,6 +67,7 @@ function UserForm({ onSubmit }) {
       const result = await response.json();
       if (response.ok) {
         setMessage('User added successfully!');
+        toast.success("User added successfully!!");
         resetForm();
         if (onSubmit) onSubmit(result.data);
       } else {
@@ -81,7 +84,7 @@ function UserForm({ onSubmit }) {
     <div className="bg-white p-6 rounded-lg shadow-md max-w-md mx-auto">
       <h2 className="text-xl font-semibold text-gray-800 mb-4 text-center">User Registration</h2>
       {loading && <p className="text-center text-blue-600 mb-2">Loading...</p>}
-      {message && <p className="text-center text-green-600 mb-2">{message}</p>}
+      {message && (<div className={`custom-alert ${message.includes('successfully') ? 'success' : 'error'}`}>{message}</div>)}
       <div className="flex justify-center mb-6">
         <div className="relative">
           <img
