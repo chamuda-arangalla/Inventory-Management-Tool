@@ -1,6 +1,6 @@
 describe("User Registration Form", () => {
-  const baseUrl = "http://localhost:5173";
-  const apiUrl = "/api/users/add"; // Changed to relative URL for intercept
+  const baseUrl = "http://localhost:5173/";
+  const apiUrl = "/api/users/add";
 
   beforeEach(() => {
     cy.visit(baseUrl);
@@ -37,7 +37,13 @@ describe("User Registration Form", () => {
     cy.get("select[name='marriedStatus']").select("married");
     cy.get("input[name='age']").type("29");
 
-    cy.get("input[type='file']").selectFile("cypress/fixtures/images/sample-image.png", { force: true });
+    const imagePath = "images/sample-image.png";
+    cy.get("input[type='file']").selectFile(`cypress/fixtures/${imagePath}`, { force: true });
+
+    // stub toast notification (if required)
+    cy.window().then((win) => {
+      cy.stub(win.console, "log").as("consoleLog");
+    });
 
     cy.get("button[type='submit']").click();
 
@@ -74,7 +80,7 @@ describe("User Registration Form", () => {
     cy.get("input[name='age']").type("25");
 
     cy.get("input[type='file']").selectFile("cypress/fixtures/images/sample-image.png", { force: true });
-    
+
     cy.get("button[type='submit']").click();
     cy.contains("Loading...").should("be.visible");
     cy.wait("@addUser");
