@@ -6,6 +6,7 @@ describe("User Registration Form", () => {
     cy.visit(baseUrl);
   });
 
+  //TestCase 1:render the form correctly
   it("renders the form correctly", () => {
     cy.contains("User Registration").should("be.visible");
     cy.get("input[type='text']").should("have.length", 5);
@@ -16,11 +17,13 @@ describe("User Registration Form", () => {
     cy.contains("Submit").should("be.visible");
   });
 
+  //TestCase 2:check empty inputs  
   it("shows validation errors on empty form submission", () => {
     cy.get("button[type='submit']").click();
     cy.contains("Required").should("exist");
   });
 
+  //TestCase 3:fill the form with unique data
   it("submits the form with valid unique data", () => {
     const unique = Date.now();
     const firstName = `John${unique}`;
@@ -61,6 +64,8 @@ describe("User Registration Form", () => {
     cy.get("input[name='age']").should("have.value", "");
   });
 
+
+  //TestCase 4:displays loading indicator during submission
   it("displays loading message while submitting", () => {
     const unique = Date.now();
     cy.intercept("POST", apiUrl, (req) => {
