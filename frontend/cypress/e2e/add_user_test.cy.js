@@ -43,7 +43,7 @@ describe("User Registration Form", () => {
     const imagePath = "images/sample-image.png";
     cy.get("input[type='file']").selectFile(`cypress/fixtures/${imagePath}`, { force: true });
 
-    // stub toast notification (if required)
+    // stub toast notification 
     cy.window().then((win) => {
       cy.stub(win.console, "log").as("consoleLog");
     });
